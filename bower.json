@@ -1,0 +1,21 @@
+{
+  "name": "javascript-density-scope",
+  "version": "0.0.1",
+  "description": "Creates a JSON Object with each key:value pair being a string:<integer> combination",
+  "dependencies": {
+    "bootstrap": "3.3.0",
+    "d3": "~3.4.13",
+    "jquery": "2.1.1"
+  },
+  "homepage": "https://github.com/nbuechler/javascript-density-scope",
+  "authors": [
+    "nbuechler <natebuechler@gmail.com>"
+  ],
+  "license": "GPLv3",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components"
+  ]
+}
