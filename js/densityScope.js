@@ -2,7 +2,7 @@ var denScop = (function dScope() {
     'use strict';
 
     //Parsers
-    var i, j, phrase,
+    var a, i, j, phrase, result,
         parseSpace = function (t) {
             return t.split(" ");
         },
@@ -30,14 +30,28 @@ var denScop = (function dScope() {
                 }
             }
             return parsedText;
+        },
+    
+        concat = function concat() {
+            result = '';
+            /*jslint plusplus: true */
+            for (a = 0; arguments.length > a; a++) {
+                if (arguments.length === (parseInt(a, 10) + 1)) {
+                    result += arguments[a];
+                } else {
+                    result += arguments[a] + ' ';
+                }
+            }
+            return result;
         };
     
     return {
-        version: "0.0.2",
+        version: "0.0.3",
         parseSpace: parseSpace,
         parseShortDash: parseShortDash,
         parseLongDash: parseLongDash,
         parseAll: parseAll,
+        concat: concat,
         greeting: function () {
             return 'Hello';
         },
