@@ -18,13 +18,20 @@
 
     
     
-    <textarea id="textbody" rows="4" style="width: 100%;">
-    At w3schools.com you will learn how to make a website. We offer free tutorials in all web development technologies.
+    <textarea id="textbody" style="width: 100%;" placeholder="Please insert your text here.">
+    
     </textarea>
     
     <button type="button" id="render" class="pull-right btn btn-success">Renderify!</button>
     
-    <ul id="densityScoped"></ul>
+    <hr></hr>
+        
+    <div style="float: left">
+        <ul id="densityScoped"></ul>
+    </div>
+    <div style="float: left">
+        <ul id="densityCounted"></ul>
+    </div>
 
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -38,17 +45,21 @@
 <script type="text/javascript">
     
     var grandOutput = '',
-        iter;
+        iter,
+        countedOutput = {};
     
     $('#render').on('click', function() {
         d3.selectAll('li').remove();
         
-        grandOutput = denScop.parseAll($('#textbody').val());
+        grandOutput = denScop.separate.text($('#textbody').val()).byAll;
+        countedOutput = denScop.count.every(grandOutput).frequency;
         
-        for ( iter = 0; grandOutput.length > iter; iter++){
-            d3.select('#densityScoped').append("li").text(grandOutput[iter]);
+        for ( i in countedOutput ) {
+            if ( countedOutput[i] > 5 ) {
+            d3.select('#densityScoped').append("li").text(i);
+            d3.select('#densityCounted').append("li").text(countedOutput[i]);
+            }
         }
-        
     });
 
     
