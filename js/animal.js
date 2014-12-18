@@ -67,7 +67,7 @@ dog.prototype.taxonomy = function() {
   return this;
 };
 
-
+/*
 //Variable Definitions
 var animal = new animal();
 var mammal = new mammal();
@@ -100,3 +100,4 @@ dog.drink();
 dog.sleep();
 dog.wagTail;
 dog.taxonomy();
+*/
