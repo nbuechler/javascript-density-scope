@@ -9,13 +9,21 @@
     <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
 </head>
 
-<body>
+<body style="padding: 5%;">
 
     <h1>JavaScript Density Scope</h1>
 
     <p>This is a simple JavaScript application engineered to measure frequency of words in a text body.</p>
     <p>Takes a passage of text as a string input and returns a an json object called densityScope with each key:value pair being as follows: var densityScope = { "stringA" : , "stringB" : , "stringN" : }</p>
 
+    
+    
+    <textarea id="textbody" rows="4" style="width: 100%;">
+    At w3schools.com you will learn how to make a website. We offer free tutorials in all web development technologies.
+    </textarea>
+    
+    <button type="button" id="render" class="pull-right btn btn-success">Renderify!</button>
+    
     <ul id="densityScoped"></ul>
 
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
@@ -29,12 +37,20 @@
 
 <script type="text/javascript">
     
-    var grandOutput = denScop.parseAll("Froggy Flippers – Strange Loops, Purple-people eaters--yarrg "),
+    var grandOutput = '',
         iter;
+    
+    $('#render').on('click', function() {
+        d3.selectAll('li').remove();
+        
+        grandOutput = denScop.parseAll($('#textbody').val());
+        
+        for ( iter = 0; grandOutput.length > iter; iter++){
+            d3.select('#densityScoped').append("li").text(grandOutput[iter]);
+        }
+        
+    });
 
-    for ( iter = 0; grandOutput.length > iter; iter++){
-        d3.select('#densityScoped').append("li").text(grandOutput[iter]);
-    }
     
 </script>    
 

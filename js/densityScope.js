@@ -46,7 +46,7 @@ var denScop = (function dScope() {
         };
     
     return {
-        version: "0.0.4",
+        version: "0.0.5",
         parseSpace: parseSpace,
         parseShortDash: parseShortDash,
         parseLongDash: parseLongDash,
