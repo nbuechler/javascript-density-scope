@@ -3,15 +3,36 @@ var denScop = (function dScope() {
     
     var a, i, j, k, m, phrase, result, freq, objFreq,
 
+        //Counters
+        singleCount = function (a, w) {
+            freq = 0;
+            /*jslint plusplus: true */
+            for (i = 0; a.length > i; i++) {
+                if (a[i] === w) {
+                    freq += 1;
+                }
+            }
+            return freq;
+        },
+    
+        everyCount = function (a) {
+            objFreq = {};
+            /*jslint plusplus: true */
+            for (j = 0; a.length > j; j++) {
+                objFreq[a[j]] = singleCount(a, a[j]);
+            }
+            return objFreq;
+        },
+        
         //Parsers
         parseSpace = function (t) {
-            return t.split(" ");
+            return t.split(' ');
         },
         parseShortDash = function (t) {
-            return t.split("-");
+            return t.split('-');
         },
         parseLongDash = function (t) {
-            return t.split("–");
+            return t.split('–');
         },
         parseNewLine = function (t) {
             return t.split(/\r\n|\r|\n/g);
@@ -47,7 +68,7 @@ var denScop = (function dScope() {
                     /*
                      * Parses the spaces into a word to be parsed
                      */
-                    if (parseSpace(phrase)[j] !== "") {
+                    if (parseSpace(phrase)[j] !== '') {
                         parsedTextStepOne.push(parseSpace(phrase)[j]);
                     }
                 }
@@ -57,7 +78,7 @@ var denScop = (function dScope() {
                 /*
                  * Parses the new line into a word to be parsed
                  */
-                if (parseNewLine(parsedTextStepOne[k]) !== "") {
+                if (parseNewLine(parsedTextStepOne[k]) !== '') {
                     parsedTextStepTwo.push(parseNewLine(parsedTextStepOne[k]));
                 }
             }
@@ -70,7 +91,7 @@ var denScop = (function dScope() {
             
             /*jslint plusplus: true */
             for (m = parsedTextStepThree.length; m >= 0; m--) {
-                if (parsedTextStepThree[m] === "") {
+                if (parsedTextStepThree[m] === '') {
                     parsedTextStepThree.splice(m, 1);
                 }
             }
@@ -79,32 +100,30 @@ var denScop = (function dScope() {
             return this.parsedText;
         },
     
-        //Counters
-        singleCount = function (a, w) {
-            freq = 0;
-            /*jslint plusplus: true */
-            for (i = 0; a.length > i; i++) {
-                if (a[i] === w) {
-                    freq += 1;
-                }
-            }
-            return freq;
+        
+    
+        //Filters
+            //TODO: Filter out option of articles (the, he, she) and conjunctions (by, for)
+
+
+        //Makers
+        makeSimpleNV = function (a) {
+            var countedOutput = denScop.everyCount(a);
+            this.newSimpleDenObject = countedOutput;
+            return this.newSimpleDenObject;
         },
-    
-        everyCount = function (a) {
-            objFreq = {};
-            /*jslint plusplus: true */
-            for (j = 0; a.length > j; j++) {
-                objFreq[a[j]] = singleCount(a, a[j]);
-            }
-            return objFreq;
+        makeSecondaryNV = function (a) {
+            //TODO: Need to return something like this {{ name: <actual name1>, count: <count1>}, {<actual name2>, count: <count2>}}
         };
-    
-    ///Filters
-        //TODO: Filter out option of articles (the, he, she) and conjunctions (by, for)
     
     
     //Prototypes
+    /*
+     * Count - Count methods based on word frequncy, max, median, range
+     * Separate - Parser methods
+     * Combine - Combine methods
+     * Make - Make methods
+     */
     function Count() {}
     Count.prototype.single = function (a, w) {
         this.frequency = singleCount(a, w);
@@ -120,12 +139,16 @@ var denScop = (function dScope() {
         
     function Separate() {}
     Separate.prototype.text = function (t) {
-        this.bySpace = t.split(" ");
-        this.byShortDash = t.split("-");
-        this.byLongDash = t.split("–");
+        this.bySpace = t.split(' ');
+        this.byShortDash = t.split('-');
+        this.byLongDash = t.split('–');
         this.byNewLine = t.split(/\r\n|\r|\n/g);
         this.byAll = denScop.parseAll(t);
         return this;
+    };
+    function Make() {}
+    Make.prototype.densityGraph = function (a) {
+        this.byNameValue = 'foo';
     };
     function Combine() {}
     Combine.prototype.text = function () {
@@ -144,7 +167,7 @@ var denScop = (function dScope() {
     
     
     return {
-        version: "0.0.7",
+        version: '0.0.7',
         singleCount: singleCount,
         everyCount: everyCount,
         parseSpace: parseSpace,
@@ -152,6 +175,7 @@ var denScop = (function dScope() {
         parseLongDash: parseLongDash,
         parseNewLine: parseNewLine,
         parseAll: parseAll,
+        makeSimpleNV: makeSimpleNV,
         greeting: function () {
             return 'Hello';
         },
