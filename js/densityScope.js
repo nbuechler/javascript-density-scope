@@ -1,7 +1,7 @@
 var denScop = (function dScope() {
     'use strict';
     
-    var a, i, j, phrase, result, freq, objFreq,
+    var a, i, j, k, m, phrase, result, freq, objFreq,
 
         //Parsers
         parseSpace = function (t) {
@@ -13,11 +13,30 @@ var denScop = (function dScope() {
         parseLongDash = function (t) {
             return t.split("–");
         },
+        parseNewLine = function (t) {
+            return t.split(/\r\n|\r|\n/g);
+        },
         /*
          * Returns an array called parsedText
          */
         parseAll = function (t) {
-            var parsedText = [];
+            var merged = [],
+                /*
+                 * Step One:
+                 * Parses the long dashes out into a phrase to be parsed
+                 * Parses the spaces into a word to be parsed
+                 */
+                parsedTextStepOne = [],
+                /*
+                 * Step Two:
+                 * Parses the new line into a word to be parsed
+                 */
+                parsedTextStepTwo = [],
+                /*
+                 * Step Three:
+                 * Merges the arrays into one nice flat array
+                 */
+                parsedTextStepThree = [];
             /*jslint plusplus: true */
             for (i = 0; parseLongDash(t).length > i; i++) {
                 /*
@@ -29,11 +48,34 @@ var denScop = (function dScope() {
                      * Parses the spaces into a word to be parsed
                      */
                     if (parseSpace(phrase)[j] !== "") {
-                        parsedText.push(parseSpace(phrase)[j]);
+                        parsedTextStepOne.push(parseSpace(phrase)[j]);
                     }
                 }
             }
-            this.parsedText = parsedText;
+            /*jslint plusplus: true */
+            for (k = 0; parsedTextStepOne.length > k; k++) {
+                /*
+                 * Parses the new line into a word to be parsed
+                 */
+                if (parseNewLine(parsedTextStepOne[k]) !== "") {
+                    parsedTextStepTwo.push(parseNewLine(parsedTextStepOne[k]));
+                }
+            }
+            /*
+             * Merges the arrays into one nice flat array
+             */
+            merged = merged.concat.apply(merged, parsedTextStepTwo);
+            parsedTextStepThree = merged;
+            merged = [];
+            
+            /*jslint plusplus: true */
+            for (m = parsedTextStepThree.length; m >= 0; m--) {
+                if (parsedTextStepThree[m] === "") {
+                    parsedTextStepThree.splice(m, 1);
+                }
+            }
+            
+            this.parsedText = parsedTextStepThree;
             return this.parsedText;
         },
     
@@ -81,6 +123,7 @@ var denScop = (function dScope() {
         this.bySpace = t.split(" ");
         this.byShortDash = t.split("-");
         this.byLongDash = t.split("–");
+        this.byNewLine = t.split(/\r\n|\r|\n/g);
         this.byAll = denScop.parseAll(t);
         return this;
     };
@@ -101,12 +144,13 @@ var denScop = (function dScope() {
     
     
     return {
-        version: "0.0.6",
+        version: "0.0.7",
         singleCount: singleCount,
         everyCount: everyCount,
         parseSpace: parseSpace,
         parseShortDash: parseShortDash,
         parseLongDash: parseLongDash,
+        parseNewLine: parseNewLine,
         parseAll: parseAll,
         greeting: function () {
             return 'Hello';

@@ -55,7 +55,7 @@
         countedOutput = denScop.count.every(grandOutput).frequency;
         
         for ( i in countedOutput ) {
-            if ( countedOutput[i] > 5 ) {
+            if ( countedOutput[i] > 0 ) {
             d3.select('#densityScoped').append("li").text(i);
             d3.select('#densityCounted').append("li").text(countedOutput[i]);
             }
