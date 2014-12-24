@@ -9,6 +9,20 @@
     <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
 </head>
 
+<style>
+
+.chart rect {
+  fill: steelblue;
+}
+
+.chart text {
+  fill: white;
+  font: 10px sans-serif;
+  text-anchor: middle;
+}
+
+</style>    
+    
 <body style="padding: 5%;">
 
     <h1>JavaScript Density Scope</h1>
@@ -33,6 +47,10 @@
         <ul id="densityCounted"></ul>
     </div>
 
+    <div style="float: right">
+        <svg class="chart"></svg>
+    </div>
+    
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="bower_components/d3/d3.min.js"></script>
@@ -60,8 +78,47 @@
             d3.select('#densityCounted').append("li").text(countedOutput[i]);
             }
         }
-    });
+    
 
+        var scale = 1,
+            width = 960/scale,
+            height = 500/scale
+            data = denScop.make.densityGraphOf(grandOutput, 2).givingPhraseArrayLimited;
+
+        var y = d3.scale.linear()
+            .range([height, 0]);
+
+        var chart = d3.select(".chart")
+            .attr("width", width)
+            .attr("height", height);
+
+          y.domain([0, d3.max(data, function(d) { return d.count; })]);
+
+          var barWidth = width / data.length;
+
+          var bar = chart.selectAll("g")
+              .data(data)
+            .enter().append("g")
+              .attr("transform", function(d, i) { return "translate(" + i * barWidth + ",0)"; });
+
+          bar.append("rect")
+              .attr("y", function(d) { return y(d.count); })
+              .attr("height", function(d) { return height - y(d.count); })
+              .attr("width", barWidth - 1);
+
+          bar.append("text")
+              .attr("y", barWidth / 2 - barWidth)
+              .attr("x", height - 40)
+              .attr("dy", "")
+              .attr("transform", "rotate(90)")
+              .text(function(d) { return d.name; });
+
+        function type(d) {
+          d.count = +d.count; // coerce to number
+          return d;
+        }
+    
+    });
     
 </script>    
 

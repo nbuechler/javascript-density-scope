@@ -1,7 +1,7 @@
 var denScop = (function dScope() {
     'use strict';
     
-    var a, i, j, k, m, phrase, result, freq, objFreq,
+    var a, i, j, k, m, po, lpo, phrase, result, freq, objFreq, wordList, wordObjectSchema, limit, limitedWordList, limitedWordObjectSchema,
 
         //Counters
         singleCount = function (a, w) {
@@ -15,6 +15,7 @@ var denScop = (function dScope() {
             return freq;
         },
     
+        //Need to get back to this, should be an array of counts
         everyCount = function (a) {
             objFreq = {};
             /*jslint plusplus: true */
@@ -22,6 +23,42 @@ var denScop = (function dScope() {
                 objFreq[a[j]] = singleCount(a, a[j]);
             }
             return objFreq;
+        },
+        
+        //Object/Array Makers
+        
+        wordObject = function (a, w, limit) {
+            limit = limit || 0;
+            freq = 0;
+            /*jslint plusplus: true */
+            for (i = 0; a.length > i; i++) {
+                if (a[i] === w) {
+                    freq += 1;
+                }
+            }
+            if (freq > limit) {
+                return {name: w, count: freq};
+            } else {
+                return null;
+            }
+        },
+        
+        phraseObject = function (a) {
+            po = {};
+            /*jslint plusplus: true */
+            for (j = 0; a.length > j; j++) {
+                po[a[j]] = singleCount(a, a[j]);
+            }
+            return po;
+        },
+        
+        phraseArray = function (a) {
+            wordObjectSchema = [];
+            /*jslint plusplus: true */
+            for (j = 0; a.length > j; j++) {
+                wordObjectSchema.push(wordObject(a, a[j]));
+            }
+            return wordObjectSchema;
         },
         
         //Parsers
@@ -105,18 +142,28 @@ var denScop = (function dScope() {
         //Filters
             //TODO: Filter out option of articles (the, he, she) and conjunctions (by, for)
 
-
-        //Makers
-        makeSimpleNV = function (a) {
-            var countedOutput = denScop.everyCount(a);
-            this.newSimpleDenObject = countedOutput;
-            return this.newSimpleDenObject;
+        limitedPhraseObject = function (a, limit) {
+            lpo = {};
+            /*jslint plusplus: true */
+            for (j = 0; a.length > j; j++) {
+                if (wordObject(a, a[j], limit) !== null) {
+                    lpo[a[j]] = singleCount(a, a[j], limit);
+                }
+            }
+            return lpo;
         },
-        makeSecondaryNV = function (a) {
-            //TODO: Need to return something like this {{ name: <actual name1>, count: <count1>}, {<actual name2>, count: <count2>}}
+        
+        limitedPhraseArray = function (a, limit) {
+            limitedWordObjectSchema = [];
+            /*jslint plusplus: true */
+            for (j = 0; a.length > j; j++) {
+                if (wordObject(a, a[j], limit) !== null) {
+                    limitedWordObjectSchema.push(wordObject(a, a[j]));
+                }
+            }
+            return limitedWordObjectSchema;
         };
-    
-    
+        
     //Prototypes
     /*
      * Count - Count methods based on word frequncy, max, median, range
@@ -147,8 +194,12 @@ var denScop = (function dScope() {
         return this;
     };
     function Make() {}
-    Make.prototype.densityGraph = function (a) {
-        this.byNameValue = 'foo';
+    Make.prototype.densityGraphOf = function (a, limit) {
+        this.givingPhraseObject = phraseObject(a);
+        this.givingPhraseArray = phraseArray(a);
+        this.givingPhraseObjectLimited = limitedPhraseObject(a, limit);
+        this.givingPhraseArrayLimited = limitedPhraseArray(a, limit);
+        return this;
     };
     function Combine() {}
     Combine.prototype.text = function () {
@@ -167,15 +218,19 @@ var denScop = (function dScope() {
     
     
     return {
-        version: '0.0.7',
+        version: '0.0.8',
         singleCount: singleCount,
         everyCount: everyCount,
+        wordObject: wordObject,
+        phraseObject: phraseObject,
+        phraseArray: phraseArray,
         parseSpace: parseSpace,
         parseShortDash: parseShortDash,
         parseLongDash: parseLongDash,
         parseNewLine: parseNewLine,
         parseAll: parseAll,
-        makeSimpleNV: makeSimpleNV,
+        limitedPhraseArray: limitedPhraseArray,
+        limitedPhraseObject: limitedPhraseObject,
         greeting: function () {
             return 'Hello';
         },
@@ -188,7 +243,8 @@ var denScop = (function dScope() {
          */
         separate: new Separate(),
         combine: new Combine(),
-        count: new Count()
+        count: new Count(),
+        make: new Make()
     };
 
 }());
