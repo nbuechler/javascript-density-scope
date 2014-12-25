@@ -1,15 +1,19 @@
 var denScop = (function dScope() {
     'use strict';
     
-    var a, ua, uw, uc, i, j, k, m, po, lpo, w, phrase, result, freq, objFreq, countList, wordList, wordObjectSchema, limit, limitedWordObjectSchema,
+    var a, f, ua, uw, uc, i, j, k, m, po, lpo, t, tw, w, phrase, result, freq, objFreq, countList, wordList, wordObjectSchema, limit, limitedWordObjectSchema,
 
+        //Defaults
+        defaultTargetWords = ['The', 'in', 'that', 'is', 'he', 'his', 'she', 'her', 'it', 'their', 'to', 'for', 'by', 'of', 'and', 'an', 'a', 'the', 'by', 'for', 'on', 'at', 'as', 'its', "it's"],
+        limitDefault = 0,
+        
         //Helpers
         getUniqueWords = function (a) {
             wordList = [];
             /*jslint plusplus: true */
             for (w = 0; a.length > w; w++) {
-                if (wordList.indexOf(a[w]) === -1) {
-                    wordList.push(a[w]);
+                if (wordList.indexOf(a[w].toLowerCase()) === -1) {
+                    wordList.push(a[w].toLowerCase());
                 }
             }
             return wordList;
@@ -20,9 +24,19 @@ var denScop = (function dScope() {
             /*jslint plusplus: true */
             ua = getUniqueWords(a);
             for (j = 0; ua.length > j; j++) {
-                countList.push(denScop.singleCount(a, ua[j]));
+                countList.push(denScop.singleCount(a, ua[j].toLowerCase()));
             }
             return countList;
+        },
+        
+        removeTargetObject = function (a, targetWord) {
+            /*jslint plusplus: true */
+            for (t = 0; a.length > t; t++) {
+                if (a[t].name === targetWord) {
+                    a.splice(t, 1);
+                }
+            }
+            return a;
         },
         
         //Counters
@@ -30,7 +44,7 @@ var denScop = (function dScope() {
             freq = 0;
             /*jslint plusplus: true */
             for (i = 0; a.length > i; i++) {
-                if (a[i] === w) {
+                if (a[i].toLowerCase() === w.toLowerCase()) {
                     freq += 1;
                 }
             }
@@ -40,7 +54,7 @@ var denScop = (function dScope() {
         //Object/Array Makers
         
         wordObject = function (a, w, limit) {
-            limit = limit || 0;
+            limit = limit || limitDefault;
             freq = 0;
             /*jslint plusplus: true */
             for (i = 0; a.length > i; i++) {
@@ -154,8 +168,16 @@ var denScop = (function dScope() {
         
     
         //Filters
-            //TODO: Filter out option of articles (the, he, she) and conjunctions (by, for)
 
+        filterSinglets = function (a, tw) {
+            tw = tw || defaultTargetWords;
+            /*jslint plusplus: true */
+            for (f = 0; tw.length > f; f++) {
+                removeTargetObject(a, tw[f]);
+            }
+            return a;
+        },
+        
         //TODO: limit actually sets lower bound, but what about the upper bound??
         
         limitedPhraseObject = function (a, limit) {
@@ -224,6 +246,11 @@ var denScop = (function dScope() {
         this.countList = getUniqueCounts(a);
         return this;
     };
+    function Filter() {}
+    Filter.prototype.densityObject = function (a) {
+        this.removingSinglets = filterSinglets(a);
+        return this;
+    };
     function Combine() {}
     Combine.prototype.text = function () {
         var result = '';
@@ -241,7 +268,7 @@ var denScop = (function dScope() {
     
     
     return {
-        version: '0.0.8',
+        version: '0.0.9',
         getUniqueWords: getUniqueWords,
         getUniqueCounts: getUniqueCounts,
         singleCount: singleCount,
@@ -253,6 +280,7 @@ var denScop = (function dScope() {
         parseLongDash: parseLongDash,
         parseNewLine: parseNewLine,
         parseAll: parseAll,
+        filterSinglets: filterSinglets,
         limitedPhraseArray: limitedPhraseArray,
         limitedPhraseObject: limitedPhraseObject,
         greeting: function () {
@@ -268,7 +296,8 @@ var denScop = (function dScope() {
         separate: new Separate(),
         combine: new Combine(),
         count: new Count(),
-        make: new Make()
+        make: new Make(),
+        filter: new Filter()
     };
 
 }());
