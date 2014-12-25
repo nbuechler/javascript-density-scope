@@ -1,8 +1,30 @@
 var denScop = (function dScope() {
     'use strict';
     
-    var a, i, j, k, m, po, lpo, phrase, result, freq, objFreq, wordList, wordObjectSchema, limit, limitedWordList, limitedWordObjectSchema,
+    var a, ua, uw, uc, i, j, k, m, po, lpo, w, phrase, result, freq, objFreq, countList, wordList, wordObjectSchema, limit, limitedWordObjectSchema,
 
+        //Helpers
+        getUniqueWords = function (a) {
+            wordList = [];
+            /*jslint plusplus: true */
+            for (w = 0; a.length > w; w++) {
+                if (wordList.indexOf(a[w]) === -1) {
+                    wordList.push(a[w]);
+                }
+            }
+            return wordList;
+        },
+        
+        getUniqueCounts = function (a) {
+            countList = [];
+            /*jslint plusplus: true */
+            ua = getUniqueWords(a);
+            for (j = 0; ua.length > j; j++) {
+                countList.push(denScop.singleCount(a, ua[j]));
+            }
+            return countList;
+        },
+        
         //Counters
         singleCount = function (a, w) {
             freq = 0;
@@ -15,16 +37,6 @@ var denScop = (function dScope() {
             return freq;
         },
     
-        //Need to get back to this, should be an array of counts
-        everyCount = function (a) {
-            objFreq = {};
-            /*jslint plusplus: true */
-            for (j = 0; a.length > j; j++) {
-                objFreq[a[j]] = singleCount(a, a[j]);
-            }
-            return objFreq;
-        },
-        
         //Object/Array Makers
         
         wordObject = function (a, w, limit) {
@@ -54,9 +66,11 @@ var denScop = (function dScope() {
         
         phraseArray = function (a) {
             wordObjectSchema = [];
+            uw = denScop.getUniqueWords(a);
+            uc = denScop.getUniqueCounts(a);
             /*jslint plusplus: true */
-            for (j = 0; a.length > j; j++) {
-                wordObjectSchema.push(wordObject(a, a[j]));
+            for (j = 0; uw.length > j; j++) {
+                wordObjectSchema.push({name: uw[j], count: uc[j]});
             }
             return wordObjectSchema;
         },
@@ -142,6 +156,8 @@ var denScop = (function dScope() {
         //Filters
             //TODO: Filter out option of articles (the, he, she) and conjunctions (by, for)
 
+        //TODO: limit actually sets lower bound, but what about the upper bound??
+        
         limitedPhraseObject = function (a, limit) {
             lpo = {};
             /*jslint plusplus: true */
@@ -155,15 +171,17 @@ var denScop = (function dScope() {
         
         limitedPhraseArray = function (a, limit) {
             limitedWordObjectSchema = [];
+            uw = denScop.getUniqueWords(a);
+            uc = denScop.getUniqueCounts(a);
             /*jslint plusplus: true */
-            for (j = 0; a.length > j; j++) {
-                if (wordObject(a, a[j], limit) !== null) {
-                    limitedWordObjectSchema.push(wordObject(a, a[j]));
+            for (j = 0; uw.length > j; j++) {
+                if (uc[j] > limit) {
+                    limitedWordObjectSchema.push({name: uw[j], count: uc[j]});
                 }
             }
             return limitedWordObjectSchema;
         };
-        
+    
     //Prototypes
     /*
      * Count - Count methods based on word frequncy, max, median, range
@@ -178,8 +196,8 @@ var denScop = (function dScope() {
         return this;
     };
     
-    Count.prototype.every = function (a, w) {
-        this.frequency = everyCount(a);
+    Count.prototype.everyWord = function (a, w) {
+        this.getfrequencyArray = getUniqueCounts(a);
         //TODO: Add this.max, this.median, this.range, this.sort, etc.
         return this;
     };
@@ -201,6 +219,11 @@ var denScop = (function dScope() {
         this.givingPhraseArrayLimited = limitedPhraseArray(a, limit);
         return this;
     };
+    Make.prototype.unique = function (a) {
+        this.wordList = getUniqueWords(a);
+        this.countList = getUniqueCounts(a);
+        return this;
+    };
     function Combine() {}
     Combine.prototype.text = function () {
         var result = '';
@@ -219,8 +242,9 @@ var denScop = (function dScope() {
     
     return {
         version: '0.0.8',
+        getUniqueWords: getUniqueWords,
+        getUniqueCounts: getUniqueCounts,
         singleCount: singleCount,
-        everyCount: everyCount,
         wordObject: wordObject,
         phraseObject: phraseObject,
         phraseArray: phraseArray,

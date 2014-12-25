@@ -62,28 +62,34 @@
 
 <script type="text/javascript">
     
+    
+    
     var grandOutput = '',
+        lim = 5,
         iter,
-        countedOutput = {};
+        uWords = [];
+        uCounts = [];
     
     $('#render').on('click', function() {
         d3.selectAll('li').remove();
+        d3.selectAll('g').remove();
         
         grandOutput = denScop.separate.text($('#textbody').val()).byAll;
-        countedOutput = denScop.count.every(grandOutput).frequency;
+        uWords = denScop.make.unique(grandOutput).wordList;
+        uCounts = denScop.make.unique(grandOutput).countList;
         
-        for ( i in countedOutput ) {
-            if ( countedOutput[i] > 0 ) {
-            d3.select('#densityScoped').append("li").text(i);
-            d3.select('#densityCounted').append("li").text(countedOutput[i]);
+        for ( i in uCounts ) {
+            if ( uCounts[i] > lim ) {
+            d3.select('#densityScoped').append("li").text(uWords[i]);
+            d3.select('#densityCounted').append("li").text(uCounts[i]);
             }
         }
     
 
         var scale = 1,
             width = 960/scale,
-            height = 500/scale
-            data = denScop.make.densityGraphOf(grandOutput, 2).givingPhraseArrayLimited;
+            height = 500/scale,
+            data = denScop.make.densityGraphOf(grandOutput, lim).givingPhraseArrayLimited;
 
         var y = d3.scale.linear()
             .range([height, 0]);
