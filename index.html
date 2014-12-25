@@ -89,8 +89,9 @@
         var scale = 1,
             width = 960/scale,
             height = 500/scale,
-            data = denScop.make.densityGraphOf(grandOutput, lim).givingPhraseArrayLimited;
-
+            unFiltedData = denScop.make.densityGraphOf(grandOutput, lim).givingPhraseArrayLimited,
+            data = denScop.filter.densityObject(unFiltedData).removingSinglets;
+        
         var y = d3.scale.linear()
             .range([height, 0]);
 
