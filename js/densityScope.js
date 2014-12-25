@@ -1,8 +1,30 @@
 var denScop = (function dScope() {
     'use strict';
     
-    var a, i, j, k, m, phrase, result, freq, objFreq,
+    var a, ua, uw, uc, i, j, k, m, po, lpo, w, phrase, result, freq, objFreq, countList, wordList, wordObjectSchema, limit, limitedWordObjectSchema,
 
+        //Helpers
+        getUniqueWords = function (a) {
+            wordList = [];
+            /*jslint plusplus: true */
+            for (w = 0; a.length > w; w++) {
+                if (wordList.indexOf(a[w]) === -1) {
+                    wordList.push(a[w]);
+                }
+            }
+            return wordList;
+        },
+        
+        getUniqueCounts = function (a) {
+            countList = [];
+            /*jslint plusplus: true */
+            ua = getUniqueWords(a);
+            for (j = 0; ua.length > j; j++) {
+                countList.push(denScop.singleCount(a, ua[j]));
+            }
+            return countList;
+        },
+        
         //Counters
         singleCount = function (a, w) {
             freq = 0;
@@ -15,13 +37,42 @@ var denScop = (function dScope() {
             return freq;
         },
     
-        everyCount = function (a) {
-            objFreq = {};
+        //Object/Array Makers
+        
+        wordObject = function (a, w, limit) {
+            limit = limit || 0;
+            freq = 0;
+            /*jslint plusplus: true */
+            for (i = 0; a.length > i; i++) {
+                if (a[i] === w) {
+                    freq += 1;
+                }
+            }
+            if (freq > limit) {
+                return {name: w, count: freq};
+            } else {
+                return null;
+            }
+        },
+        
+        phraseObject = function (a) {
+            po = {};
             /*jslint plusplus: true */
             for (j = 0; a.length > j; j++) {
-                objFreq[a[j]] = singleCount(a, a[j]);
+                po[a[j]] = singleCount(a, a[j]);
             }
-            return objFreq;
+            return po;
+        },
+        
+        phraseArray = function (a) {
+            wordObjectSchema = [];
+            uw = denScop.getUniqueWords(a);
+            uc = denScop.getUniqueCounts(a);
+            /*jslint plusplus: true */
+            for (j = 0; uw.length > j; j++) {
+                wordObjectSchema.push({name: uw[j], count: uc[j]});
+            }
+            return wordObjectSchema;
         },
         
         //Parsers
@@ -105,17 +156,31 @@ var denScop = (function dScope() {
         //Filters
             //TODO: Filter out option of articles (the, he, she) and conjunctions (by, for)
 
-
-        //Makers
-        makeSimpleNV = function (a) {
-            var countedOutput = denScop.everyCount(a);
-            this.newSimpleDenObject = countedOutput;
-            return this.newSimpleDenObject;
+        //TODO: limit actually sets lower bound, but what about the upper bound??
+        
+        limitedPhraseObject = function (a, limit) {
+            lpo = {};
+            /*jslint plusplus: true */
+            for (j = 0; a.length > j; j++) {
+                if (wordObject(a, a[j], limit) !== null) {
+                    lpo[a[j]] = singleCount(a, a[j], limit);
+                }
+            }
+            return lpo;
         },
-        makeSecondaryNV = function (a) {
-            //TODO: Need to return something like this {{ name: <actual name1>, count: <count1>}, {<actual name2>, count: <count2>}}
+        
+        limitedPhraseArray = function (a, limit) {
+            limitedWordObjectSchema = [];
+            uw = denScop.getUniqueWords(a);
+            uc = denScop.getUniqueCounts(a);
+            /*jslint plusplus: true */
+            for (j = 0; uw.length > j; j++) {
+                if (uc[j] > limit) {
+                    limitedWordObjectSchema.push({name: uw[j], count: uc[j]});
+                }
+            }
+            return limitedWordObjectSchema;
         };
-    
     
     //Prototypes
     /*
@@ -131,8 +196,8 @@ var denScop = (function dScope() {
         return this;
     };
     
-    Count.prototype.every = function (a, w) {
-        this.frequency = everyCount(a);
+    Count.prototype.everyWord = function (a, w) {
+        this.getfrequencyArray = getUniqueCounts(a);
         //TODO: Add this.max, this.median, this.range, this.sort, etc.
         return this;
     };
@@ -147,8 +212,17 @@ var denScop = (function dScope() {
         return this;
     };
     function Make() {}
-    Make.prototype.densityGraph = function (a) {
-        this.byNameValue = 'foo';
+    Make.prototype.densityGraphOf = function (a, limit) {
+        this.givingPhraseObject = phraseObject(a);
+        this.givingPhraseArray = phraseArray(a);
+        this.givingPhraseObjectLimited = limitedPhraseObject(a, limit);
+        this.givingPhraseArrayLimited = limitedPhraseArray(a, limit);
+        return this;
+    };
+    Make.prototype.unique = function (a) {
+        this.wordList = getUniqueWords(a);
+        this.countList = getUniqueCounts(a);
+        return this;
     };
     function Combine() {}
     Combine.prototype.text = function () {
@@ -167,15 +241,20 @@ var denScop = (function dScope() {
     
     
     return {
-        version: '0.0.7',
+        version: '0.0.8',
+        getUniqueWords: getUniqueWords,
+        getUniqueCounts: getUniqueCounts,
         singleCount: singleCount,
-        everyCount: everyCount,
+        wordObject: wordObject,
+        phraseObject: phraseObject,
+        phraseArray: phraseArray,
         parseSpace: parseSpace,
         parseShortDash: parseShortDash,
         parseLongDash: parseLongDash,
         parseNewLine: parseNewLine,
         parseAll: parseAll,
-        makeSimpleNV: makeSimpleNV,
+        limitedPhraseArray: limitedPhraseArray,
+        limitedPhraseObject: limitedPhraseObject,
         greeting: function () {
             return 'Hello';
         },
@@ -188,7 +267,8 @@ var denScop = (function dScope() {
          */
         separate: new Separate(),
         combine: new Combine(),
-        count: new Count()
+        count: new Count(),
+        make: new Make()
     };
 
 }());
