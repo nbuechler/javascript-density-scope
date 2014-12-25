@@ -4,19 +4,16 @@ var denScop = (function dScope() {
     var a, f, ua, uw, uc, i, j, k, m, po, lpo, t, tw, w, phrase, result, freq, objFreq, countList, wordList, wordObjectSchema, limit, limitedWordObjectSchema,
 
         //Defaults
-        defaultTargetWords = ['The', 'in', 'that', 'is', 'he', 'she', 'it', 'to', 'for', 'by', 'of', 'and', 'an', 'a', 'the', 'by', 'for', 'on', 'at'],
+        defaultTargetWords = ['The', 'in', 'that', 'is', 'he', 'his', 'she', 'her', 'it', 'their', 'to', 'for', 'by', 'of', 'and', 'an', 'a', 'the', 'by', 'for', 'on', 'at', 'as', 'its', "it's"],
         limitDefault = 0,
-        
-        //TODO
-        ////Create a default for counting words with the different cases... i.e. The == the (the = 2)
         
         //Helpers
         getUniqueWords = function (a) {
             wordList = [];
             /*jslint plusplus: true */
             for (w = 0; a.length > w; w++) {
-                if (wordList.indexOf(a[w]) === -1) {
-                    wordList.push(a[w]);
+                if (wordList.indexOf(a[w].toLowerCase()) === -1) {
+                    wordList.push(a[w].toLowerCase());
                 }
             }
             return wordList;
@@ -27,7 +24,7 @@ var denScop = (function dScope() {
             /*jslint plusplus: true */
             ua = getUniqueWords(a);
             for (j = 0; ua.length > j; j++) {
-                countList.push(denScop.singleCount(a, ua[j]));
+                countList.push(denScop.singleCount(a, ua[j].toLowerCase()));
             }
             return countList;
         },
@@ -47,7 +44,7 @@ var denScop = (function dScope() {
             freq = 0;
             /*jslint plusplus: true */
             for (i = 0; a.length > i; i++) {
-                if (a[i] === w) {
+                if (a[i].toLowerCase() === w.toLowerCase()) {
                     freq += 1;
                 }
             }
